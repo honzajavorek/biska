@@ -7,3 +7,5 @@ zabezpečení této stránky a rychlostí jejího fungování. Zabezpečení web
 hrubou silou, kdy se pokusíme náhodně volit hesla a také použitím rainbow tables (tabulek obsahujících hashe,
 pomocí nichž je možné nalézt shodu s hashem např. z odcizené databáze a získat tak heslo k účtu.
 
+##Instalace 
+TODO
