@@ -13,5 +13,12 @@ pomocí nichž je možné nalézt shodu s hashem např. z odcizené databáze a 
     source bis/bin/activate
     pip install -r requirements.txt
     
+## Spuštění
+Pro spuštění na adrese `http://localhost:8000/`
+
+    python app.py runserver
+
+Vytvorime uzivatele
+    python app.py createsuperuser --username=test --email=test@test.com
     
     
