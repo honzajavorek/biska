@@ -19,6 +19,6 @@ Pro spuštění na adrese `http://localhost:8000/`
     python app.py runserver
 
 Vytvorime uzivatele
-    python app.py createsuperuser --username=test --email=test@test.com
+    python app.py createsuperuser --username=admin --email=admin@test.com
     
     
