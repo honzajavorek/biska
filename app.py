@@ -1,34 +1,67 @@
 # -*- coding: utf-8 -*-
 '''
-Run this with $ python ./micro_django.py and go to http://localhost:8000/Foo
+Spustit jako $ python app.py a jit na http://localhost:8000/
 '''
-
+from django.conf import settings
+from django.conf.global_settings import MIDDLEWARE_CLASSES, TEMPLATE_CONTEXT_PROCESSORS
+from django.shortcuts import render, redirect
 import os, sys
-from django.conf.urls.defaults import patterns
-from django.template.response import TemplateResponse
 
-# this module
+# tento modul
 me = os.path.splitext(os.path.split(__file__)[1])[0]
-# helper function to locate this dir
+# najdi tento adresar
 here = lambda x: os.path.join(os.path.abspath(os.path.dirname(__file__)), x)
 
-# SETTINGS
-DEBUG=TEMPLATE_DEBUG=True
-ROOT_URLCONF = me
-DATABASES = { 'default': {} } #required regardless of actual usage
-TEMPLATE_DIRS = (here('.'), )
 
 # VIEW
-def index(request, name):
-    return TemplateResponse(request, 'index.html', {'name': name})
+def index(request):
+    from django.contrib.auth.forms import AuthenticationForm
+    from django.contrib.auth.views import login
 
-# URLS
-urlpatterns = patterns('', (r'^(?P<name>\w+)?$', index))
+    return login(request, template_name='index.html')
 
-if __name__=='__main__':
-    # set the ENV
-    os.environ['DJANGO_SETTINGS_MODULE'] = me
-    sys.path += (here('.'),)
-    # run the development server
-    from django.core import management
-    management.execute_from_command_line()
+
+if __name__ == '__main__':
+    # SETTINGS
+    inline_sett = {
+        # definice kde je sqlite databaze
+        'DATABASES': {'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(here('.'), 'db.sqlite3'),
+        }},
+        'INSTALLED_APPS': (
+            'django.contrib.admin',
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
+            'django.contrib.sessions',
+            'django.contrib.messages',
+        ),
+        'MIDDLEWARE_CLASSES':
+            MIDDLEWARE_CLASSES + ('django.contrib.sessions.middleware.SessionMiddleware',
+                                  'django.contrib.auth.middleware.AuthenticationMiddleware',
+                                  'django.contrib.messages.middleware.MessageMiddleware'),
+        'TEMPLATE_CONTEXT_PROCESSORS':
+            TEMPLATE_CONTEXT_PROCESSORS + ('django.core.context_processors.request',)
+    }
+
+    settings.configure(
+        **dict(inline_sett,
+               DEBUG=True,
+               LANGUAGES=(('cs', ''),),
+               LANGUAGE_CODE='cs',
+               USE_I18N=True,
+               ROOT_URLCONF='urls',
+               MEDIA_ROOT=here('.'),
+               TEMPLATE_DIRS=(here('.'), ),
+               LOGIN_REDIRECT_URL='/',
+               # pouzivame nebezpecny neosoleny MD5 hash
+               PASSWORD_HASHERS = ('django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',),
+               # PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',),
+               # PASSWORD_HASHERS = ('django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher',),
+               SECRET_KEY='...')
+    )
+
+    from django.core.management import execute_from_command_line
+
+    execute_from_command_line(sys.argv)
+
