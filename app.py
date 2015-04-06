@@ -47,8 +47,6 @@ if __name__ == '__main__':
     settings.configure(
         **dict(inline_sett,
                DEBUG=True,
-               # DEBUG=False,
-               # ALLOWED_HOSTS=['*'],
                LANGUAGES=(('cs', ''),),
                LANGUAGE_CODE='cs',
                USE_I18N=True,
@@ -56,6 +54,10 @@ if __name__ == '__main__':
                MEDIA_ROOT=here('.'),
                TEMPLATE_DIRS=(here('.'), ),
                LOGIN_REDIRECT_URL='/',
+               # pouzivame nebezpecny neosoleny MD5 hash
+               PASSWORD_HASHERS = ('django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',),
+               # PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',),
+               # PASSWORD_HASHERS = ('django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher',),
                SECRET_KEY='...')
     )
 

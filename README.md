@@ -21,4 +21,31 @@ Pro spuštění na adrese `http://localhost:8000/`
 Vytvorime uzivatele
     python app.py createsuperuser --username=admin --email=admin@test.com
     
-    
+##MD5
+http://cs.wikipedia.org/wiki/Message-Digest_algorithm
+
+## Hackovani rainbow tabulka
+
+https://www.freerainbowtables.com
+
+./rcracki_mt -h bae60998ffe4923b131e3d6e4c19993e "/media/vlinhart/My Passport/films/AAA/md5_loweralpha-numeric-space#1-8_0"
+
+or faster and easier
+http://www.md5crack.com/
+
+
+
+
+    ?l = abcdefghijklmnopqrstuvwxyz
+    ?u = ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    ?d = 0123456789
+    ?s = «space»!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+    ?a = ?l?u?d?s
+    ?b = 0x00 - 0xff
+
+
+./hashcat-cli64.bin -m0 -a3 hashes.txt ?l?l?l
+#all 3 chars
+./hashcat-cli64.bin -m0 -a3 hashes.txt ?a?a?a
+./hashcat-cli64.bin -m0 -a3 hashes.txt ?l?d?l?d?l?d?l?d?l?d?l?d?l?d?l?d 
+./hashcat-cli64.bin -m0 -a3 hashes.txt ?d?d?d?d?d?d?l?l (123456az)
