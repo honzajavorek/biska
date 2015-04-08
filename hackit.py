@@ -58,6 +58,6 @@ for delka_hesla in range(0, max_delka_hesla):
     for heslo in passwords[delka_hesla]:
         zkus_heslo(heslo)
     po = time.time()
-    print "zkouseni hesel o delce", delka_hesla + 1, "trvalo %.3f" % (po - pred), 's'
+    print "zkouseni %s hesel o delce" % len(passwords[delka_hesla]), delka_hesla + 1, "trvalo %.3f" % (po - pred), 's'
 
 print 'Jeden pokus trval prumerne', sum(delka_jednotlivych_pokusu) / len(delka_jednotlivych_pokusu), 's'

@@ -21,28 +21,72 @@ activate spustíme složku, aby bylo možné do ní instalovat knihovny.
     source bis/bin/activate
     pip install -r requirements.txt
        
-## Spuštění webové aplikace s přihlašovacím formulářem
+## Popis webové aplikace
 
-Pro spuštění na adrese `http://localhost:8000/` 
+Webová stránka je implementována v programovacím jazyce Python s využitím webového frameworku Django.
+Django jsme zvolila z důvodu urychlení vývoje webové stránky.
+
+### Spuštění webové stránky
+
+Pro spuštění na adrese [http://localhost:8000/](http://localhost:8000/) 
+Pomocí prvního příkazu vytvoříme webovou databázi (tato činnost se provádí jen jednou) a pomocí druhého web spustíme.
 
     python app.py syncdb
     python app.py runserver
     
-Vytvorime uzivatele
+Vytvoříme uživatele.
+
     python app.py createsuperuser --username=admin --email=admin@test.com
     
-##MD5
-http://cs.wikipedia.org/wiki/Message-Digest_algorithm
+### Funkce webové stránky
+
+Webová stránka umožňuje přihlášení uživatele pomocí přihlašovacího jména a hesla, zadaného do formuláře. Po přihlášení
+získá uživatel přístup k chráněným informacím.
+
+### Bezpečnost webové stránky
+
+V databázi používám pro ukládání hesel velmi slabé zabezpečení - neosolený algoritmus MD5. Zvolila jsem ho, abychom
+viděli, jak je snadné ho prolomit a proč by se neměl používat. Jediným bezpečnějším použitím tohoto algoritmu je přidání
+soli, díky které se změní hash a nedají se pak využít k prolomení hesla rainbow tabulky. 
+Měla jsem v úmyslu pro zvýšení bezpečnosti webové stránky využít možnosti blokace účtu po několika neúspěšných
+přihlášeních, ale bohužel to již nebylo v časových možnostech.
+Formulář využívá zabudované bezpečnostní funkce frameworku Django, ochrany proti [CSRF útoku](http://cs.wikipedia.org/wiki/Cross-site_request_forgery)
+
+## Útok
+
+### Útok na běžící webovou stránku
+
+U webové stránky jsem si řekla, že uživatelem bude "admin" a napsala jsem si skript, který se pokouší přihlásit na
+stránku pod uživatelem "admin" a postupně zkouší všechna možná hesla složená z malých písmen anglické abecedy o
+rozsahu jeden až čtyři znaky (více jsem nezkoušela z hlediska časové náročnosti - chtěla jsem jen demonstrovat použití
+tohoto způsobu útoku).
 
     python hackit.py
+    zkouseni 26 hesel o delce 1 trvalo 0.396 s
+    zkouseni 676 hesel o delce 2 trvalo 9.017 s
+    Heslo je abc
+    Jeden pokus trval prumerne 0.0133911237325 s
 
-## Hackovani rainbow tabulka
-Program na pouziti i duhove tabulky stazene odsud https://www.freerainbowtables.com. Pouzita jen ta nejmensi pro tyto znaky
-a-z0-9 o max delce hesla 8 znaku. 
+Jak vidíme, v případě krátkého hesla je tento typ útoku snadno proveditelný a proto je potřeba ještě další zabezpečnení
+(např. dříve zmíněné zablokování IP adresy, ze které je útok veden po několika neúspěšných pokusech o přihlášení nebo
+jinou ochranou, např. limitováním počtu pokusů např. na jeden za vteřinu).
 
-### Ukazka pouziteho hashe z pokusne DB
+Implementovaná stránka odpovídala velmi rychle, průměrně za 0.014 s, což je v tomto případě na škodu, protože to 
+umožňuje tento typ útoku.
 
-./rcracki_mt -h bae60998ffe4923b131e3d6e4c19993e "cesta k adresari s rainbow tabulkama"
+### Útok s využitím rainbow tabulek (duhových tabulek)
+
+Na webových stránkách [https://www.freerainbowtables.com](https://www.freerainbowtables.com) jsem stáhla program na použití rainbow tabulek, nicméně v rámci
+datové a časové úspory jsem stáhla jen tabulku, která obsahuje hashe o kombinacích malých písmen a čísel (a-z, 0-9) délky
+do 8 znaků.
+
+#### Ukázka použitého hashe z pokusné DB
+
+Tato varianta je zajímavá, když získáme přístup k nějaké databázi, kde vidíme hashe. Pomocí rainbow tabulek je pak
+můžeme porovnat a prolomit heslo. Jakékoliv heslo, jehož hash je obsahem rainbow tabulky a k němuž máme hash z databáze,
+odhalí tyto tabulky během okamžiku.
+
+./rcracki_mt -h bae60998ffe4923b131e3d6e4c19993e "cesta k adresari s rainbow tabulkami"
    
     statistics
     -------------------------------------------------------
@@ -58,7 +102,7 @@ a-z0-9 o max delce hesla 8 znaku.
     -------------------------------------------------------
     bae60998ffe4923b131e3d6e4c19993e	bad	hex:626164
 
-###Ukazka dlouhe slovo - jen  pismena
+#### Ukázka dlouhé slovo - jen  písmena
 
 ./rcracki_mt -h e8dc4081b13434b45189a720b77b6818 "cesta k adresari s rainbow tabulkama"
 
@@ -77,7 +121,7 @@ a-z0-9 o max delce hesla 8 znaku.
     e8dc4081b13434b45189a720b77b6818	abcdefgh	hex:6162636465666768
 
 
-###Ukazka kombinovana pismena a cisla
+#### Ukázka kombinovaná písmena a čísla
 
 ./rcracki_mt -h 11cfd4fab26bbf25df59f59fb8ccd9b1 "cesta k adresari s rainbow tabulkama"
 
@@ -96,11 +140,19 @@ a-z0-9 o max delce hesla 8 znaku.
     11cfd4fab26bbf25df59f59fb8ccd9b1	068877op	hex:3036383837376f70
 
 
-Nebo to same na webu, bez nutnosti neco stahovat.
-http://www.md5crack.com/
+Nebo to samé můžeme docílit s pomocí webu, bez nutnosti něco stahovat.
+
+[http://www.md5crack.com/](http://www.md5crack.com/)
 
 
-## Bruteforce pomoci Hascat
+### Bruteforce pomoci Hascat
+
+Také útok hrubou silou s využitím programu který zkouší všechny možnosti, všechny délky určitých znaků. Můžeme zde
+využít možnosti, kdy víme, jak má heslo vypadat - program poté odhalí heslo snadněji. V případě dlouhých hesel je
+tato varianta časově velmi náročná (už pro heslo o 8 znacích při využití PC se 4jádrovým procesorem jsem čekání vzdala
+po 10 minutách).
+
+Zadání typu hesla:
 
     ?l = abcdefghijklmnopqrstuvwxyz
     ?u = ABCDEFGHIJKLMNOPQRSTUVWXYZ
@@ -110,8 +162,7 @@ http://www.md5crack.com/
     ?b = 0x00 - 0xff
 
     
-    ./hashcat-cli64.bin -m0 -a3 hashes.txt ?l?l?l
-    #all 3 chars
-    ./hashcat-cli64.bin -m0 -a3 hashes.txt ?a?a?a
-    ./hashcat-cli64.bin -m0 -a3 hashes.txt ?l?d?l?d?l?d?l?d?l?d?l?d?l?d?l?d 
-    ./hashcat-cli64.bin -m0 -a3 hashes.txt ?d?d?d?d?d?d?l?l (123456az)
+    ./hashcat-cli64.bin -m0 -a3 hashes.txt ?l?l?l # abecední znaky o délce 3
+    ./hashcat-cli64.bin -m0 -a3 hashes.txt ?a?a?a # všechny znaky o délce 3
+    ./hashcat-cli64.bin -m0 -a3 hashes.txt ?l?d?l?d?l?d?l?d?l?d?l?d?l?d?l?d # znaky o délce 8 ve formátu 8x[0-9a-z]
+    ./hashcat-cli64.bin -m0 -a3 hashes.txt ?d?d?d?d?d?d?l?l (123456az) 6x[0-9]2x[a-z]
