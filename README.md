@@ -5,24 +5,36 @@
 V rámci práce vytvoříme testovací webovou stránku, zahrnující uživatelský účet. Budeme se zabývat také hlediskem 
 zabezpečení této stránky a rychlostí jejího fungování. Zabezpečení webové stránky otestujeme demonstrací útoku
 hrubou silou, kdy se pokusíme náhodně volit hesla a také použitím rainbow tables (tabulek obsahujících hashe,
-pomocí nichž je možné nalézt shodu s hashem např. z odcizené databáze a získat tak heslo k účtu.
+pomocí nichž je možné nalézt shodu s hashem např. z odcizené databáze a získat tak heslo k účtu).
 
-##Instalace 
+##Instalace
+
+Abychom mohli rozjet projekt, potřebujeme nainstalovat dva hlavní programy, kterými jsou sqliteman a virtualenv.
+Pomocí sqlitemanu můžeme prohlížet obsah odcizené databáze (ze které budeme porovnávat hashe s cílem získat heslo
+k uživatelskému účtu). Virtualenv nám vytváří izolované Python prostředí, které nám slouží k nainstalování knihovny
+pro běh tohoto projektu (rojekt tedy není nainstalován do systému, ale do tohoto virtuálního prostředí). Příkazem
+activate spustíme složku, aby bylo možné do ní instalovat knihovny.
     
+    sudo aptitude install sqliteman virtualenv
+    cd PycharmProjects/biska
     virtualenv bis
     source bis/bin/activate
     pip install -r requirements.txt
-    
-## Spuštění
-Pro spuštění na adrese `http://localhost:8000/`
+       
+## Spuštění webové aplikace s přihlašovacím formulářem
 
+Pro spuštění na adrese `http://localhost:8000/` 
+
+    python app.py syncdb
     python app.py runserver
-
+    
 Vytvorime uzivatele
     python app.py createsuperuser --username=admin --email=admin@test.com
     
 ##MD5
 http://cs.wikipedia.org/wiki/Message-Digest_algorithm
+
+    python hackit.py
 
 ## Hackovani rainbow tabulka
 Program na pouziti i duhove tabulky stazene odsud https://www.freerainbowtables.com. Pouzita jen ta nejmensi pro tyto znaky

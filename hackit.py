@@ -53,7 +53,7 @@ session = requests.Session()
 uvodni_pozadavek = session.get(adresa)
 csrf = uvodni_pozadavek.cookies['csrftoken']
 
-for delka_hesla in range(0, max_delka_hesla - 2):
+for delka_hesla in range(0, max_delka_hesla):
     pred = time.time()
     for heslo in passwords[delka_hesla]:
         zkus_heslo(heslo)
