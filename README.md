@@ -9,17 +9,30 @@ pomocí nichž je možné nalézt shodu s hashem např. z odcizené databáze a 
 
 ##Instalace
 
-Abychom mohli rozjet projekt, potřebujeme nainstalovat dva hlavní programy, kterými jsou sqliteman a virtualenv.
-Pomocí sqlitemanu můžeme prohlížet obsah odcizené databáze (ze které budeme porovnávat hashe s cílem získat heslo
-k uživatelskému účtu). Virtualenv nám vytváří izolované Python prostředí, které nám slouží k nainstalování knihovny
-pro běh tohoto projektu (rojekt tedy není nainstalován do systému, ale do tohoto virtuálního prostředí). Příkazem
-activate spustíme složku, aby bylo možné do ní instalovat knihovny.
-    
+Nejdříve si stáhneme zdrojové kódy projektu z jeho repozitáře na GitHubu:
+
+    $ git clone git@github.com:kmackovikova/biska.git  # stáhne repozitář
+    $ cd ./biska                                       # vcházíme do složky s projektem
+
+Abychom mohli projekt používat na Linuxu, potřebujeme nainstalovat dva hlavní programy, kterými jsou sqliteman a virtualenv.
+
     sudo aptitude install sqliteman virtualenv
-    cd PycharmProjects/biska
-    virtualenv bis
-    source bis/bin/activate
-    pip install -r requirements.txt
+
+Pomocí sqlitemanu můžeme prohlížet obsah odcizené databáze (ze které budeme porovnávat hashe s cílem získat heslo
+k uživatelskému účtu). Virtualenv nám vytváří izolované Python prostředí, které nám slouží k nainstalování knihoven
+pro běh tohoto projektu (projekt tedy není nainstalován do systému, ale do tohoto virtuálního prostředí). Příkazem
+`activate` toto prostředí můžeme aktivovat, aby do něj bylo možné knihovny nainstalovat.
+
+Před vytvořením prostředí zkontrolujeme, jestli naše linuxová distribuce disponuje Pythonem verze 2.x, v němž je tento projekt napsaný:
+
+    $ python --version
+    Python 2.7.16
+    
+Pokud máme verzi 3 a novější, projekt nebude fungovat. V takovém případě musíme sehnat verzi 2.7, zjistit cestu k této verzi Pythonu (např. `python2` a program `virtualenv` v následujícím kroku spouštět s touto cestou (např. `virtualenv venv --python=python2`), aby pro vytvoření virtuálního prostředí použil Python správné verze.
+    
+    $ virtualenv venv                        # vytváříme virtuální prostředí             
+    $ source ./venv/bin/activate             # aktivujeme virtuální prostředí
+    (venv)$ pip install -r requirements.txt  # instalujeme závislosti projektu v aktivovaném virtuálním prostředí
        
 ## Popis webové aplikace
 
@@ -28,15 +41,37 @@ Django jsme zvolila z důvodu urychlení vývoje webové stránky.
 
 ### Spuštění webové stránky
 
-Pro spuštění na adrese [http://localhost:8000/](http://localhost:8000/) 
-Pomocí prvního příkazu vytvoříme webovou databázi (tato činnost se provádí jen jednou) a pomocí druhého web spustíme.
+Než budeme moci projekt lokálně spustit na adrese [http://127.0.0.1:8000/](http://127.0.0.1:8000/), potřebujeme nejdříve vytvořit databázi, superuživatele v Djangu, a teprve potom můžeme web spustit. Obě zmíněné činnosti provádíme jen jednou, při prvním spouštění projektu.
 
-    python app.py syncdb
-    python app.py runserver
+    (venv)$ python app.py syncdb  # vytvoří databázi
+    Operations to perform:
+      Apply all migrations: admin, contenttypes, auth, sessions
+    Running migrations:
+      Applying contenttypes.0001_initial... OK
+      Applying auth.0001_initial... OK
+      Applying admin.0001_initial... OK
+      Applying sessions.0001_initial... OK
+
+    You have installed Django's auth system, and don't have any superusers defined.
+    Would you like to create one now? (yes/no):
     
-Vytvoříme uživatele.
+Jak je vidět, příkaz na vytvoření databáze už se nás rovnou ptá i na vytvoření superuživatele. Odpovíme-li `yes`, můžeme pokračovat:
 
-    python app.py createsuperuser --username=admin --email=admin@test.com
+    You have installed Django's auth system, and don't have any superusers defined.
+    Would you like to create one now? (yes/no): yes
+    Username (leave blank to use 'katka'): admin
+    Email address: admin@example.com
+    Password:
+    Password (again):
+    Superuser created successfully.
+
+Pokud bychom odpověděli `no` nebo by se nám z jiného důvodu vytvoření superuživatele nepovedlo, můžeme jej ručně iniciovat následujícím příkazem:
+
+    (venv)$ python app.py createsuperuser --username=admin --email=admin@example.com
+
+Od tohoto okamžiku již můžeme projekt spustit. Kdykoliv to budeme chtít udělat, stačí nám zadat následující příkaz a v prohlížeči jít na adresu [http://127.0.0.1:8000/](http://127.0.0.1:8000/):
+
+    (venv)$ python app.py runserver
     
 ### Funkce webové stránky
 
